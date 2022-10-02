@@ -1,13 +1,30 @@
+import axios from 'axios'
 import { Button, Modal } from 'flowbite-react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
-const ProductModal = ({ open, close, header, body, price, count }) => {
+const ProductModal = ({ open, close, productId }) => {
+
+    const [product, setProduct] = useState(undefined)
+
+    useEffect(() => {
+        console.log('useEffect', open, productId);
+        const fetchProducts = async () => {
+            const { data } = await axios.get(`/api/products/${productId}`)
+            setProduct(data)
+            // setLoading(false)
+        }
+
+        if(open) {
+            fetchProducts()
+        }
+    }, [open, productId])
 
     const addToCart = () => {
         console.log('added to cart');
     }
 
     return (
+        product && 
         <Modal
             show={open}
             onClose={close}
@@ -15,14 +32,14 @@ const ProductModal = ({ open, close, header, body, price, count }) => {
             position='top-center'
         >
             <Modal.Header>
-                {header}
+                {product.name}
             </Modal.Header>
             <Modal.Body>
-                <p>{body}</p>
-                <p className="font-bold">${price}</p>
+                <p>{product.description}</p>
+                <p className="font-bold">${product.price}</p>
             </Modal.Body>
             <Modal.Footer>
-                <Button onClick={addToCart} disabled={count === 0}>
+                <Button onClick={addToCart} disabled={product.count === 0}>
                     <svg
                         className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round"
